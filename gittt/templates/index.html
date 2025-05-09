@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub GUI Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="app-title">
+                <i class="fab fa-github"></i> GitHub GUI Manager
+            </div>
+            <div class="user-info">
+                <button id="theme-toggle" class="btn btn-sm btn-icon theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <i class="fas fa-moon dark-icon"></i>
+                    <i class="fas fa-sun light-icon"></i>
+                </button>
+                <span class="username">{{ username }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline">Logout</a>
+            </div>
+        </header>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Sidebar - Repository List -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Your Repositories</h2>
+                    <button id="new-repo-btn" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> New
+                    </button>
+                </div>
+                
+                <div class="search-box">
+                    <input type="text" id="repo-search" placeholder="Search repositories...">
+                    <i class="fas fa-search"></i>
+                </div>
+                
+                <div class="repo-list" id="repo-list">
+                    <!-- Repositories will be loaded here -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i> Loading repositories...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content - Repository Explorer -->
+            <div class="content-area">
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-icon">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <h2>Welcome to GitHub GUI Manager</h2>
+                    <p>Select a repository from the sidebar or create a new one to get started.</p>
+                    
+                    <div class="quick-actions">
+                        <button id="create-repo-btn" class="btn btn-lg btn-primary">
+                            <i class="fas fa-plus"></i> Create New Repository
+                        </button>
+                        <button id="clone-repo-btn" class="btn btn-lg btn-secondary">
+                            <i class="fas fa-download"></i> Clone Existing Repository
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="repo-explorer hidden" id="repo-explorer">
+                    <div class="repo-header">
+                        <div class="repo-info">
+                            <h2 id="repo-name">Repository Name</h2>
+                            <div class="repo-meta">
+                                <span id="repo-visibility" class="badge">Public</span>
+                                <span id="repo-branch" class="branch-indicator">
+                                    <i class="fas fa-code-branch"></i> 
+                                    <span id="current-branch">main</span>
+                                    <button class="btn-icon branch-selector" id="branch-selector" title="Select branch" aria-label="Select branch">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="repo-actions">
+                            <button class="btn btn-sm btn-outline" id="refresh-btn">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                            <button class="btn btn-sm btn-primary" id="upload-btn">
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <button class="btn btn-sm btn-success" id="new-file-btn">
+                                <i class="fas fa-file"></i> New File
+                            </button>
+                            <button class="btn btn-sm btn-info" id="new-branch-btn">
+                                <i class="fas fa-code-branch"></i> New Branch
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="breadcrumbs" id="breadcrumbs">
+                        <span class="breadcrumb-item">root</span>
+                    </div>
+                    
+                    <div class="file-explorer" id="file-explorer">
+                        <!-- Files and folders will be loaded here -->
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading files...
+                        </div>
+                    </div>
+                    
+                    <div class="file-viewer hidden" id="file-viewer">
+                        <div class="file-header">
+                            <h3 id="file-name">File Name</h3>
+                            <button class="btn-icon close-file-x" id="close-file-x-btn" title="Close File">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <div class="file-actions">
+                                <button class="btn btn-sm btn-secondary" id="download-file-btn">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button class="btn btn-sm btn-primary" id="edit-file-btn">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-success hidden" id="preview-html-btn">
+                                    <i class="fas fa-eye"></i> Preview HTML
+                                </button>
+                                <button class="btn btn-sm btn-info hidden" id="run-python-btn">
+                                    <i class="fas fa-play"></i> Run Python
+                                </button>
+                                <button class="btn btn-sm btn-warning hidden" id="run-flask-btn">
+                                    <i class="fas fa-server"></i> Run as Flask App
+                                </button>
+                                <button class="btn btn-sm btn-danger" id="delete-file-btn">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                                <button class="btn btn-sm btn-secondary" id="close-file-btn">
+                                    <i class="fas fa-times"></i> Close File
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="file-content" id="file-content">
+                            <!-- File content will be loaded here -->
+                        </div>
+                        
+                        <div class="file-editor hidden" id="file-editor">
+                            <div class="editor-actions">
+                                <button class="btn btn-sm btn-secondary" id="cancel-edit-btn">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                                <button class="btn btn-sm btn-success" id="save-file-btn">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                            <textarea id="editor-textarea" aria-label="File content editor" placeholder="Enter file content here"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <!-- New Repository Modal -->
+    <div class="modal" id="new-repo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Repository</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="new-repo-form">
+                    <div class="form-group">
+                        <label for="repo-name-input">Repository Name:</label>
+                        <input type="text" id="repo-name-input" required>
+                        <small>Use only letters, numbers, hyphens, and underscores. No spaces.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="repo-description">Description (optional):</label>
+                        <textarea id="repo-description"></textarea>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="repo-private">
+                        <label for="repo-private">Make repository private</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-primary" id="create-repo-submit">Create Repository</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Clone Repository Modal -->
+    <div class="modal" id="clone-repo-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Clone Repository</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="clone-repo-form">
+                    <div class="form-group">
+                        <label for="repo-owner">Repository Owner:</label>
+                        <input type="text" id="repo-owner" required value="{{ username }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="repo-name-clone">Repository Name:</label>
+                        <input type="text" id="repo-name-clone" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-primary" id="clone-repo-submit">Clone Repository</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upload File Modal -->
+    <div class="modal" id="upload-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Upload Files</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="upload-form">
+                    <div class="form-group upload-type-selection">
+                        <div class="upload-option">
+                            <input type="radio" id="upload-file" name="upload-type" value="file" checked>
+                            <label for="upload-file">Single File</label>
+                        </div>
+                        <div class="upload-option">
+                            <input type="radio" id="upload-folder" name="upload-type" value="folder">
+                            <label for="upload-folder">Folder (with all files & subfolders)</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group file-upload-group">
+                        <label for="file-upload">Select File:</label>
+                        <input type="file" id="file-upload">
+                    </div>
+                    
+                    <div class="form-group folder-upload-group hidden">
+                        <label for="folder-upload">Select Folder:</label>
+                        <input type="file" id="folder-upload" webkitdirectory directory multiple>
+                        <small>All files in the selected folder will be uploaded preserving the folder structure</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="commit-message">Commit Message:</label>
+                        <input type="text" id="commit-message" value="Add files via GitHub GUI Manager">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-primary" id="upload-submit">Upload</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Branch Modal -->
+    <div class="modal" id="new-branch-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Branch</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="new-branch-form">
+                    <div class="form-group">
+                        <label for="base-branch">Base Branch:</label>
+                        <select id="base-branch"></select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-branch-name">New Branch Name:</label>
+                        <input type="text" id="new-branch-name" required>
+                        <small>Use only letters, numbers, hyphens, and underscores. No spaces.</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-primary" id="create-branch-submit">Create Branch</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Branch Selector Dropdown -->
+    <div class="dropdown hidden" id="branch-dropdown">
+        <div class="dropdown-header">
+            <h4>Switch Branch</h4>
+            <button class="btn-icon" id="close-branch-dropdown" title="Close branch selector" aria-label="Close branch selector">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <input type="text" id="branch-search" placeholder="Filter branches...">
+        <ul class="branch-list" id="branch-list">
+            <!-- Branches will be loaded here -->
+        </ul>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Action</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancel</button>
+                <button class="btn btn-danger" id="confirm-action">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+    
+    <!-- HTML Preview Modal -->
+    <div class="modal" id="html-preview-modal">
+        <div class="modal-content large-modal-content">
+            <div class="modal-header">
+                <h2>HTML Preview</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body full-height-modal-body">
+                <iframe id="html-preview-frame" class="preview-iframe" title="HTML Preview"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Close</button>
+                <a id="html-preview-open" class="btn btn-primary" href="#" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Open in New Tab
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Python Execution Modal -->
+    <div class="modal" id="python-execution-modal">
+        <div class="modal-content medium-modal-content">
+            <div class="modal-header">
+                <h2>Python Execution Result</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="execution-container">
+                    <div class="execution-header">
+                        <span class="badge-success">Output</span>
+                    </div>
+                    <pre id="python-stdout" class="execution-output"></pre>
+                    
+                    <div class="execution-header">
+                        <span class="badge-danger">Errors</span>
+                    </div>
+                    <pre id="python-stderr" class="execution-output"></pre>
+                    
+                    <div id="python-error-container" class="hidden">
+                        <div class="execution-header">
+                            <span class="badge-warning">Execution Error</span>
+                        </div>
+                        <pre id="python-error" class="execution-output error"></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Close</button>
+                <button id="python-rerun-btn" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> Run Again
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Flask App Modal -->
+    <div class="modal" id="flask-app-modal">
+        <div class="modal-content large-modal-content">
+            <div class="modal-header">
+                <h2>Flask Application</h2>
+                <button class="btn-icon close-modal">&times;</button>
+            </div>
+            <div class="modal-body full-height-modal-body">
+                <div class="flask-app-controls">
+                    <span id="flask-app-status" class="badge-info">Starting...</span>
+                    <input type="number" id="flask-app-port" min="1024" max="65535" value="5050" class="port-input" title="Port number">
+                </div>
+                <iframe id="flask-app-frame" class="preview-iframe" title="Flask Application Preview"></iframe>
+                <div id="flask-app-console" class="flask-app-console hidden">
+                    <div class="console-header">
+                        <span>Console Output</span>
+                        <button id="toggle-console-btn" class="btn-icon" title="Toggle console">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                    </div>
+                    <pre id="flask-app-log" class="console-output"></pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Close</button>
+                <button id="flask-app-restart-btn" class="btn btn-info">
+                    <i class="fas fa-redo"></i> Restart
+                </button>
+                <button id="flask-app-stop-btn" class="btn btn-danger">
+                    <i class="fas fa-stop"></i> Stop App
+                </button>
+                <a id="flask-app-open" class="btn btn-primary" href="#" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Open in New Tab
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loader"></div>
+        <div class="loading-message" id="loading-message">Loading...</div>
+    </div>
+    
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs/loader.min.js"></script>
+    <script>
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' }});
+        
+        // Before loading vs/editor/editor.main, define a global MonacoEnvironment that overwrites
+        // the default worker URL location (used when creating WebWorkers). The problem here is that
+        // HTML5 does not allow cross-domain web workers, so we need to proxy the instantiation of
+        // a web worker through a same-domain script
+        window.MonacoEnvironment = {
+            getWorkerUrl: function(workerId, label) {
+                return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+                    self.MonacoEnvironment = {
+                        baseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/'
+                    };
+                    importScripts('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs/base/worker/workerMain.js');
+                `)}`;  
+            }
+        };
+        
+        // Load Monaco Editor
+        require(['vs/editor/editor.main'], function() {
+            console.log('Monaco Editor loaded successfully');
+            // The editor is now ready for use
+        });
+    </script>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/advanced-features.js') }}"></script>
+</body>
+</html>
