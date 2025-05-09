@@ -1,0 +1,54 @@
+<!-- HTML Preview Modal -->
+<div class="modal" id="html-preview-modal">
+    <div class="modal-content large-modal-content">
+        <div class="modal-header">
+            <h2>HTML Preview</h2>
+            <button class="btn-icon close-modal">&times;</button>
+        </div>
+        <div class="modal-body full-height-modal-body">
+            <iframe id="html-preview-frame" class="preview-iframe" title="HTML Preview"></iframe>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Close</button>
+            <a id="html-preview-open" class="btn btn-primary" href="#" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Open in New Tab
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Python Execution Modal -->
+<div class="modal" id="python-execution-modal">
+    <div class="modal-content medium-modal-content">
+        <div class="modal-header">
+            <h2>Python Execution Result</h2>
+            <button class="btn-icon close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="execution-container">
+                <div class="execution-header">
+                    <span class="badge-success">Output</span>
+                </div>
+                <pre id="python-stdout" class="execution-output"></pre>
+                
+                <div class="execution-header">
+                    <span class="badge-danger">Errors</span>
+                </div>
+                <pre id="python-stderr" class="execution-output"></pre>
+                
+                <div id="python-error-container" class="hidden">
+                    <div class="execution-header">
+                        <span class="badge-warning">Execution Error</span>
+                    </div>
+                    <pre id="python-error" class="execution-output error"></pre>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary close-modal">Close</button>
+            <button id="python-rerun-btn" class="btn btn-primary">
+                <i class="fas fa-redo"></i> Run Again
+            </button>
+        </div>
+    </div>
+</div>
