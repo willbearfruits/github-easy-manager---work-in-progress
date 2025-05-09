@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub GUI Manager - Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1><i class="fab fa-github"></i> Enter Your Token</h1>
+            <p class="intro-text">Paste your GitHub Personal Access Token below:</p>
+            <div class="token-info">
+                <p><strong>Required permissions:</strong></p>
+                <ul>
+                    <li>For repository access: <code>repo</code> (full control) or <code>public_repo</code> (public only)</li>
+                    <li>For user info: <code>read:user</code></li>
+                </ul>
+                <p><a href="https://github.com/settings/tokens" target="_blank" rel="noopener">Create a token here</a> with these permissions.</p>
+            </div>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-error">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form action="{{ url_for('auth_token') }}" method="POST" class="token-form">
+                <div class="form-group">
+                    <label for="token">Personal Access Token:</label>
+                    <input type="password" id="token" name="token" required autofocus>
+                    <button type="button" id="show-token" class="btn-icon" aria-label="Show password" title="Show password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{{ url_for('login') }}" class="btn btn-secondary">Back</a>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+            
+            <div class="footer">
+                <p class="disclaimer">Your token is sent securely and is only stored in your browser session.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('show-token').addEventListener('mousedown', function() {
+            document.getElementById('token').type = 'text';
+        });
+        
+        document.addEventListener('mouseup', function() {
+            document.getElementById('token').type = 'password';
+        });
+        
+        document.addEventListener('mouseleave', function() {
+            document.getElementById('token').type = 'password';
+        });
+    </script>
+</body>
+</html>
