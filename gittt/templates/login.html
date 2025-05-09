@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub GUI Manager - Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1><i class="fab fa-github"></i> GitHub GUI Manager</h1>
+            <p class="intro-text">Manage your GitHub repositories with a simple graphical interface - no commands needed!</p>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-error">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="login-options">
+                <a href="{{ url_for('auth') }}" class="btn btn-primary btn-large">
+                    <i class="fab fa-github"></i> Continue with Personal Access Token
+                </a>
+                
+                <div class="token-info">
+                    <h3>What is a Personal Access Token?</h3>
+                    <p>A Personal Access Token (PAT) is an alternative to using passwords for authentication to GitHub.</p>
+                    <ol>
+                        <li>Go to your GitHub account settings</li>
+                        <li>Select "Developer settings" from the sidebar</li>
+                        <li>Click on "Personal access tokens" → "Tokens (classic)"</li>
+                        <li>Click "Generate new token" → "Generate new token (classic)"</li>
+                        <li>Give your token a name (e.g., "GitHub GUI Manager")</li>
+                        <li>Select the following scopes: 
+                            <ul>
+                                <li>repo (all)</li>
+                                <li>workflow</li>
+                                <li>read:user</li>
+                            </ul>
+                        </li>
+                        <li>Click "Generate token"</li>
+                        <li>Copy your token and paste it in the next screen</li>
+                    </ol>
+                    <p class="warning">⚠️ Keep your token secure! Treat it like a password.</p>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Created by Yaniv Schonfeld</p>
+                <p class="disclaimer">This application is for educational purposes.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
