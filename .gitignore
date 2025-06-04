@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+.env
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+static/previews/
+tmp/
+flask_apps/
+__pycache__

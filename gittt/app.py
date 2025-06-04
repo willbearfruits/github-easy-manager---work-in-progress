@@ -9,7 +9,10 @@ from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+# Use an environment variable for the secret key when available so that
+# sessions remain valid across restarts.  A random key is generated as a
+# fallback for development convenience.
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
@@ -951,9 +954,7 @@ def on_app_shutdown(exception=None):
     print("Application shutdown, cleaning up resources...")
     cleanup_processes()
 
-# Make sure cleanup happens at exit
-import atexit
-atexit.register(cleanup_processes)
+
 
 # Default error handler for API errors
 @app.errorhandler(Exception)

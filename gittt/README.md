@@ -44,12 +44,17 @@ cd gittt
 pip install -r requirements.txt
 ```
 
-3. Run the application
+3. (Optional) Set a persistent Flask secret key:
+```bash
+export FLASK_SECRET_KEY="your-secret-key"
+```
+
+4. Run the application
 ```bash
 python app.py
 ```
 
-4. Access the application at `http://localhost:5000`
+5. Access the application at `http://localhost:5000`
 
 ## How to Use
 
